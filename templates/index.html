@@ -1,0 +1,29 @@
+<html>
+<head>
+<title>chat</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<style>
+   body { 
+	max-width: 500px; 
+	margin: auto; 
+	padding: 1em; 
+	background: black; 
+	color: #fff; 
+	font: 16px/1.6 menlo, monospace; 
+   }
+</style>
+</head>
+<body>
+        <p><b>hi, %s!</b></p>
+        <p>Message: <input id="in" /></p>
+        <pre id="out"></pre>
+        <script>
+		var source = new EventSource("{{ url_for('sse.stream') }}");
+		source.addEventListener('greeting', function(event) {
+    		var data = JSON.parse(event.data);
+			console.log(data);
+    			// do what you want with this data
+		}, false);
+        </script>
+</body>
+</html>
