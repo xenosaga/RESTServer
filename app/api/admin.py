@@ -126,14 +126,17 @@ class admin:
 
     # [cmd][type][title][time][position]
     # [op][12][test][05020600]
-
-    # [cmd[12][haha][04010500][jell][1]
-    # [cmd][god][haha][004010500][jell][1]
+    # [add[test][jell][1]
+    # [del][test][jell][1]
     def process_cmd(self, proc_data):
+        table = self.bbl_instance_t
+
         str_list = proc_data['text'].splite(" ")
         opcode = str_list[0]
         # open team
         if(opcode == 'op')
+            table.title = str_list[2]
+            
             pass
         elif(opcode == 'add')
             pass

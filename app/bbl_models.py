@@ -34,6 +34,8 @@ class bbl_instance_t(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(256))
     game_type = db.Column(db.String(16))
+    date_time = db.Column(db.DateTime)
+    max_player = db.Column(db.Integer
 
     def __repr__(self):
         return '<BBL Instance_t %r>' % self.name
