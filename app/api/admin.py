@@ -43,16 +43,16 @@ class admin:
     def process(self, proc_data):
 
         # system guard
-        if(self.current_user == '')
+        if(self.current_user == ''):
             self.current_user = proc_data['line_uid']
         
         if(self.current_user != proc_data['line_uid']):
             return res_data
             
-        if(proc_data['group'] not None)
+        if(proc_data['group'] != None):
             self.process_group(proc_data)
             
-        elif (proc_data['room'] not None):
+        elif (proc_data['room'] != None):
             self.process_room(proc_data)
 
         return proc_data
@@ -67,7 +67,7 @@ class admin:
         res_data = {'msg': '', 'type':0 }
         # default single line mode
         if(not self.interactive):
-            if(addtext.match(proc_data['text']):
+            if(addtext.match(proc_data['text'])):
                 self.interactive = True
                 self.proce_type = 'text'
                 self.type = 1
@@ -90,19 +90,19 @@ class admin:
             res_data['msg'] = 'input keyword'
             res_data['type'] = 1            
             self.step = 1
-        elif(self.step == 1)
+        elif(self.step == 1):
             self.key = proc_data['text']
             res_data['msg'] = 'input image'
             res_data['type'] = 1
             self.setp = 2
-        elif(self.step == 2)
+        elif(self.step == 2):
             self.value = proc_data['text']
-            if(self.proce_type == image)
+            if(self.proce_type == image):
                 # download image from line
                 # upload image to imgur
                 pass
             # write to data base
-            if(self.group == 'bbl' or self.group == 'all')
+            if(self.group == 'bbl' or self.group == 'all'):
                 self.bbl_cmd_t.cmd_id = self.key
                 self.bbl_cmd_t.cmd_rsp = self.value
                 self.bbl_cmd_t.cmd_type = self.type
@@ -110,7 +110,7 @@ class admin:
                 db.session.add(self.bbl_cmd_t)
                 db.session.commit()
 
-            elif(self.group == 'moe' or self.group == 'all')
+            elif(self.group == 'moe' or self.group == 'all'):
                 self.moe_cmd_t.cmd_id = self.key
                 self.moe_cmd_t.cmd_rsp = self.value
                 self.moe_cmd_t.cmd_type = self.type
@@ -134,11 +134,11 @@ class admin:
         str_list = proc_data['text'].splite(" ")
         opcode = str_list[0]
         # open team
-        if(opcode == 'op')
+        if(opcode == 'op'):
             table.title = str_list[2]
             
             pass
-        elif(opcode == 'add')
+        elif(opcode == 'add'):
             pass
-        elif(opcode == 'del')
+        elif(opcode == 'del'):
             pass
