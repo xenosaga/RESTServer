@@ -52,7 +52,7 @@ class bbl_history_t(db.Model):
         return cls.query.all()
 
     def __repr__(self):
-        return '<BBL History_t %r>' % self.name
+        return '<BBL History_t %r>' % self.line_msg
 
 class bbl_guild_t(db.Model):
     __tablename__ = 'bbl_guild_t'
@@ -85,7 +85,7 @@ class bbl_guild_t(db.Model):
         return cls.query.all()
 
     def __repr__(self):
-        return '<BBL Guild_t %r>' % self.name
+        return '<BBL Guild_t %r>' % self.line_id
 
 class bbl_instance_t(db.Model):
     __tablename__ = 'bbl_instance_t'
@@ -111,7 +111,7 @@ class bbl_instance_t(db.Model):
         return cls.query.filter_by(title=title).first()
             
     def __repr__(self):
-        return '<BBL Instance_t %r>' % self.name
+        return '<BBL Instance_t %r>' % self.title
 
 class bbl_instance_player_t(db.Model):
     __tablename__ = 'bbl_instance_player_t'
@@ -134,9 +134,10 @@ class bbl_instance_player_t(db.Model):
         db.session.commit()
 
     @classmethod
-    def get_player_by_title(cls, title):
-        return cls.query.filter_by(title=title).all()
+    def get_player(cls, title, id):
+        return cls.query.filter_by(title=title, team_id=id).first()
+
 
     def __repr__(self):
-        return '<BBL Instance_player_t %r>' % self.name
+        return '<BBL Instance_player_t %r>' % self.title
 
