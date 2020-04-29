@@ -1,30 +1,20 @@
 import datetime
 from .. import db
-from ..moe_models import moe_cmd_t, moe_history_t, moe_guild_t, moe_instance_t
-from ..bbl_models import bbl_cmd_t, bbl_history_t, bbl_guild_t, bbl_instance_t, bbl_instance_player_t
+from ..chat_models \
+    import cmd_t, history_t, guild_t, \
+        instance_t, instance_player_t
 from flask import jsonify
+
 
 # state less object
 class user:
 
-    def __init__(self, type):
+    def __init__(self, model_type):
         self.line_id = ''
         self.query = ''
         self.res_data = {'msg':'', 'type':0}
-        self.type = type
+        self.type = model_type
         self.time_formate = '%Y%m%d-%H%M'
-        if(self.type == 'bbl'):
-            self.cmd_t = bbl_guild_t
-            self.history_t = bbl_history_t()
-            self.guild_t = bbl_guild_t()
-            self.instance_t = bbl_instance_t()
-            self.instance_player_t = bbl_instance_player_t()
-        elif(self.type == 'moe'):
-            self.cmd_t = moe_guild_t()
-            self.history_t = moe_history_t()
-            self.guild_t = moe_guild_t()
-            self.instance_t = moe_instance_t()
-            self.instance_player_t = moe_instance_player_t
     
     # proc_data
     #   room_id <option>
@@ -105,7 +95,7 @@ class user:
     # [add[test][jell][1]
     def instance_add(self, str_list, line_uid):
         inst_table = self.instance_t
-        inst_user_table = self.instance_player_t
+        inst_user_table = bbl_instance_player_t()
         res = inst_table.get_game_by_title(title=str_list[1])
         
         if(res != None):
@@ -158,6 +148,15 @@ class user:
             self.res_data['msg'] = 'No such user'
             self.res_data['type'] = 1
 
+    # [q_inst][title]
+    def instance_query(self, str_list):
+        inst_user_table = self.instance_player_t
+        
+        res = inst_user_table.get_players_by_title(title=str_list[1])
+        for item in res:
+            print(str(item.team_id) + ' ' + item.game_id + ' ' + item.title )
+
+        pass
 
     # [cmd][type][title][time][position]
     def process_cmd(self, str_list, line_uid):
@@ -175,7 +174,8 @@ class user:
         # [del][test][jell][1]
         elif(opcode == 'del'):
             self.instance_delete(str_list, line_uid)
-
+        elif(opcode == 'q_inst'):
+            self.instance_query(str_list)
 
     def process_query(self, proc_data):
         pass

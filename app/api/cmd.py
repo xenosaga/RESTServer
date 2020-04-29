@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from . import api
 from .. import db
-from ..bbl_models import bbl_cmd_t, bbl_history_t
+from ..chat_models import cmd_t, history_t
 from .handler import process
 
 @api.route('/', methods=['POST'])
@@ -30,15 +30,18 @@ def init():
 def insert():
     data = request.get_json()
     
-    his_o = bbl_history_t()
+    his_o = history_t('bbl')
     his_o.line_msg = data['cmd']
     his_o.line_uid = data['rsp']
+    his_o.scope = data['scope']
     his_o.add()
 
-    # cmd_data = bbl_cmd_t(cmd_id=data['cmd'], cmd_rsp=data['rsp'], cmd_type=data['type'])
-    # db.session.add(cmd_data)
-    # db.session.commit()
-
+    # cmd_o = cmd_t('bbl')
+    # cmd_o.cmd_id = data['cmd']
+    # cmd_o.cmd_rsp = data['rsp']
+    # cmd_o.cmd_scope = data['scope']
+    # cmd_o.cmd_type = data['type']
+    # cmd_o.add()
 
     return jsonify(data)
 
@@ -46,7 +49,7 @@ def insert():
 def delete():
     data = request.get_json()
 
-    cmd_data = bbl_cmd_t.query.filter_by(cmd_id=data['cmd']).first()
+    cmd_data = cmd_t.query.filter_by(cmd_id=data['cmd']).first()
     db.session.delete(cmd_data)
     db.session.commit()
 
@@ -56,8 +59,9 @@ def delete():
 def query():
     data = request.get_json()
 
-    his_data = bbl_history_t(line_msg='', line_uid='')
-    row_data = his_data.get_all_message()
+    his_data = history_t('bbl')
+    # row_data = his_data.get_all_message()
+    row_data = his_data.get_msgs_by_scope(data['scope'])
     for obj in row_data:
         print(obj.line_msg)
 

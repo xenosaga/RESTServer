@@ -1,7 +1,7 @@
 
 from .. import db
-from ..moe_models import moe_cmd_t, moe_history_t, moe_guild_t, moe_instance_t
-from ..bbl_models import bbl_cmd_t, bbl_history_t, bbl_guild_t, bbl_instance_t
+from ..chat_models import \
+    cmd_t, history_t, guild_t, instance_t
 import re
 
 # state less object
@@ -13,12 +13,7 @@ class admin:
         self.res = ''
         self.current_user = ''
         self.step = 0
-        self.bbl_cmd_t = bbl_guild_t()
-        self.bbl_guild_t = bbl_guild_t()
         
-        self.bbl_cmd_t = moe_guild_t()
-        self.bbl_instance_t = moe_instance_t()
-    
         self.interactive = False
         self.proce_type = 'text'
         self.group = 'bbl'
