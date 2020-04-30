@@ -8,7 +8,7 @@ import re
 class admin:
 
     def __init__(self):
-        self.line_id = ''
+        self.line_uid = ''
         self.query = ''
         self.res = ''
         self.current_user = ''
@@ -44,13 +44,13 @@ class admin:
         if(self.current_user != proc_data['line_uid']):
             return res_data
             
-        if(proc_data['group'] != None):
+        if(proc_data['group_id'] != None):
             self.process_group(proc_data)
             
-        elif (proc_data['room'] != None):
+        elif (proc_data['room_id'] != None):
             self.process_room(proc_data)
 
-        return proc_data
+        return self.res_data
 
     def process_room(self, proc_data):
         pass
@@ -62,11 +62,11 @@ class admin:
         res_data = {'msg': '', 'type':0 }
         # default single line mode
         if(not self.interactive):
-            if(addtext.match(proc_data['text'])):
+            if(self.addtext.match(proc_data['text'])):
                 self.interactive = True
                 self.proce_type = 'text'
                 self.type = 1
-            elif(addimg.match(proc_data['text'])):
+            elif(self.addimg.match(proc_data['text'])):
                 self.interactive = True
                 self.proce_type = 'image'
                 self.type = 2
@@ -82,13 +82,13 @@ class admin:
     
     def process_interactive(self, process_data):
         if(self.step == 0):
-            res_data['msg'] = 'input keyword'
-            res_data['type'] = 1            
+            self.res_data['msg'] = 'input keyword'
+            self.res_data['type'] = 1            
             self.step = 1
         elif(self.step == 1):
             self.key = proc_data['text']
-            res_data['msg'] = 'input image'
-            res_data['type'] = 1
+            self.res_data['msg'] = 'input image'
+            self.res_data['type'] = 1
             self.setp = 2
         elif(self.step == 2):
             self.value = proc_data['text']

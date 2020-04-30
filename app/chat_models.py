@@ -1,5 +1,6 @@
 from . import db
 from sqlalchemy import or_
+from sqlalchemy import asc
 
 class cmd_t(db.Model):
     __tablename__ = 'cmd_t'
@@ -135,9 +136,13 @@ class instance_t(db.Model):
     @classmethod
     def get_game_by_title(cls, title, scope):
         return cls.query.filter_by(title=title, scope=scope).first()
-            
+
+    @classmethod
+    def get_games(cls, scope):
+        return cls.query.filter_by(scope=scope).all()
+
     def __repr__(self):
-        return '< %s Instance_t %r>' % self.name, self.title
+        return '<Instance_t %r>' % self.title
 
 class instance_player_t(db.Model):
     __tablename__ = 'instance_player_t'
@@ -150,7 +155,7 @@ class instance_player_t(db.Model):
     scope = db.Column(db.String(32))
 
     def __init__(self, name):
-        self.name
+        self.name = name
 
     def add(self):
         db.session.add(self)
@@ -173,5 +178,5 @@ class instance_player_t(db.Model):
             cls.scope == scope).order_by(asc(cls.team_id))
 
     def __repr__(self):
-        return '< %s Instance_player_t %r>' % self.name, self.title
+        return '<Instance_player_t %r>' % self.title
 

@@ -6,6 +6,12 @@ from config import config
 
 mail = Mail()
 db = SQLAlchemy()
+room_map = {
+    "48242894131452": "bbl",
+    "79958556256998": "moe"
+}
+admin_id = ['55555555555']
+admin_cmd = ['addtext', 'addimg']
 
 def create_app(config_name):
     app = Flask(__name__)
