@@ -4,7 +4,8 @@ from sqlalchemy import asc
 
 class cmd_t(db.Model):
     __tablename__ = 'cmd_t'
-    cmd_id = db.Column(db.Unicode(128), primary_key=True)
+    cmd_id = db.Column(db.Integer, primary_key=True)
+    cmd_key = db.Column(db.Unicode(128))
     cmd_rsp = db.Column(db.Unicode(128))
     cmd_type = db.Column(db.Integer)
     cmd_scope = db.Column(db.String(32))
@@ -24,16 +25,20 @@ class cmd_t(db.Model):
         db.session.commit()
 
     @classmethod
-    def get_cmd(cls, cmd_id, scope):
-        return cls.query.filter(cls.cmd_id == cmd_id, 
+    def get_cmd(cls, cmd_key, scope):
+        return cls.query.filter(cls.cmd_key == cmd_key, 
                                 cls.cmd_scope.in_(scope)).first()
 
     @classmethod
-    def get_all_cmd(cls, cmd_id, scope):
+    def get_cmds_by_key(cls, cmd_key):
+        return cls.query.filter(cls.cmd_key == cmd_key).all()
+    
+    @classmethod
+    def get_all_cmd(cls, scope):
         return cls.query.filter(cls.cmd_scope.in_(scope)).all()
 
     def __repr__(self):
-        return '<%s Cmd_t %r>' % self.name, self.cmd_id
+        return '<Cmd_t %r>' %  self.cmd_key
       
 class history_t(db.Model):
     __tablename__ = 'history_t'

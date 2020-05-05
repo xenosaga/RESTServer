@@ -22,23 +22,23 @@ class user:
     #   line_uid
     #   text
     #   type
-    def process(self, proc_data):
+    def process(self, proc_data, scope):
         if(proc_data.get('room_id') != None):
-            self.processRoom(proc_data)
+            self.processRoom(proc_data, scope)
         elif(proc_data.get('group_id') != None):
-            self.processGroup(proc_data)
+            self.processGroup(proc_data, scope)
             print('process')
 
         return self.res_data
 
-    def processRoom(self, proc_data):
+    def processRoom(self, proc_data, scope):
         
         pass
 
     # res_data
     #   res
     #   type
-    def processGroup(self, proc_data):
+    def processGroup(self, proc_data, scope):
         # default response                
         self.res_data['msg'] = ''
         self.res_data['type'] = 0
@@ -51,21 +51,12 @@ class user:
             print('query')
             # guild
             if(str_list[0] == 'guild'):
-                res_text = ''
-                db_val = bbl_guild_t.query.first()
-                print(type(db_val))
-                # for l_id, l_uid, g_id in :
-                #     res_text = res_text + l_id + ' : ' + g_id + '\n'
-                self.res_data['msg'] = res_text
-                self.res_data['type'] = 1
+                print('---------guild-----------')
+                self.process_guild(proc_data, scope)
             # keyword
             else:
-                self.cmd_t.cmd_id = str_list[0]
-                res = self.cmd_t.query.first()
-
-                if(res != None):
-                    self.res_data['msg'] = res['cmd_rsp']
-                    self.res_data['type'] = res['cmd_type']
+                print('---------keyword---------')
+                self.process_query(proc_data, scope)
         # instance
         else:
             self.process_cmd(str_list, proc_data['line_uid'])
@@ -153,7 +144,6 @@ class user:
             self.res_data['msg'] = 'Add team success'
             self.res_data['type'] = 1
             
-
     # [del][test][1]
     def instance_delete_player(self, str_list, line_uid):
         inst_user_table = instance_player_t(self.type)
@@ -223,5 +213,23 @@ class user:
         elif(opcode == 'q_inst'):
             self.instance_query(str_list)
 
-    def process_query(self, proc_data):
+    def process_query(self, proc_data, scope):
+        scope_l = ['shr', scope]
+        cmd_table = cmd_t('')
+        res = cmd_table.get_cmd(cmd_key=proc_data['text'],
+                                scope=scope_l)
+        # has data
+        if(res != None):
+            self.res_data['msg'] = res.cmd_rsp
+            self.res_data['type'] = res.cmd_type
+
+    def process_guild(self, proc_data, scope):
+        res_text = ''
+        db_val = bbl_guild_t.query.first()
+        print(type(db_val))
+        # for l_id, l_uid, g_id in :
+        #     res_text = res_text + l_id + ' : ' + g_id + '\n'
+        self.res_data['msg'] = res_text
+        self.res_data['type'] = 1
+
         pass

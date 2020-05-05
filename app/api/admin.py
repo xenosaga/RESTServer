@@ -8,26 +8,19 @@ import re
 class admin:
 
     def __init__(self):
-        self.line_uid = ''
-        self.query = ''
-        self.res = ''
         self.current_user = ''
-        self.step = 0
         
         self.interactive = False
         self.proce_type = 'text'
-        self.group = 'bbl'
 
         self.key = ''
         self.value = ''
+        self.scope = ['bbl']
         self.type = 1
+        self.init = False
         self.res_data = {'msg': 'no premission',
                          'type': 0
                         }
-        self.addimg = re.compile('addimg')
-        self.addtext = re.compile('addtext')
-        self.guild = re.compile('guild')
-        self.delete = re.compile('delete')
 
     # proce_data
     #   line_uid
@@ -35,20 +28,28 @@ class admin:
     # res_data
     #   msg
     #   type
-    def process(self, proc_data):
+    def process(self, proc_data, scope):
+
+        print(self.current_user)
+        print(proc_data['line_uid'])
 
         # system guard
         if(self.current_user == ''):
             self.current_user = proc_data['line_uid']
-        
+            self.res_data['msg'] = 'input data'
+            self.res_data['type'] = 1
+            
         if(self.current_user != proc_data['line_uid']):
-            return res_data
+            print('invalid user')
+            self.res_data['msg'] = 'Invalid user'
+            self.res_data['type'] = 1
+            return self.res_data
             
         if(proc_data['group_id'] != None):
-            self.process_group(proc_data)
+            self.process_group(proc_data, scope)
             
         elif (proc_data['room_id'] != None):
-            self.process_room(proc_data)
+            self.process_room(proc_data, scope)
 
         return self.res_data
 
@@ -58,82 +59,76 @@ class admin:
     # addimg [all]
     # keyword
     # <image>
-    def process_group(self, proc_data):
-        res_data = {'msg': '', 'type':0 }
+    def process_group(self, proc_data, scope):
         # default single line mode
-        if(not self.interactive):
-            if(self.addtext.match(proc_data['text'])):
-                self.interactive = True
-                self.proce_type = 'text'
-                self.type = 1
-            elif(self.addimg.match(proc_data['text'])):
-                self.interactive = True
-                self.proce_type = 'image'
-                self.type = 2
+        str_list = proc_data['text'].split(" ")
+        
+        print(str_list)
+        # mod scope ( for initial )
+        if(not self.init and len(str_list) == 3):
+            if(str_list[2] == 'share'):
+                self.scope = [scope, 'shr']
             else:
-                self.process_cmd(proc_data)
+                self.scope = [scope]
+            self.init = True
 
-        # interactive mode
-        if(self.interactive == True):
-            self.process_interactive(proc_data)
-
-    def operation_data(self, proc_data, group='bbl'):
-        pass
-    
-    def process_interactive(self, process_data):
-        if(self.step == 0):
-            self.res_data['msg'] = 'input keyword'
-            self.res_data['type'] = 1            
-            self.step = 1
-        elif(self.step == 1):
-            self.key = proc_data['text']
-            self.res_data['msg'] = 'input image'
-            self.res_data['type'] = 1
-            self.setp = 2
-        elif(self.step == 2):
-            self.value = proc_data['text']
-            if(self.proce_type == image):
-                # download image from line
-                # upload image to imgur
-                pass
-            # write to data base
-            if(self.group == 'bbl' or self.group == 'all'):
-                self.bbl_cmd_t.cmd_id = self.key
-                self.bbl_cmd_t.cmd_rsp = self.value
-                self.bbl_cmd_t.cmd_type = self.type
+        # command and keyword
+        if(str_list[0] == 'addimg'):
+            self.proce_type = 'image'
+            self.type = 2
+            self.key = str_list[1]
+        elif(str_list[0] == 'addtext'):
+            self.proce_type = 'text'
+            self.type = 1
+            self.key = str_list[1]
+        # value save data
+        else:
+            print('save value')
+            if(self.type == 1):
+                self.write_text(proc_data['text'])
+            elif(self.type == 2):
+                self.write_image(proc_data['text'])
                 
-                db.session.add(self.bbl_cmd_t)
-                db.session.commit()
+    def write_db(self):
+        print('---------- write db -----------')
+        print(self.scope)
 
-            elif(self.group == 'moe' or self.group == 'all'):
-                self.moe_cmd_t.cmd_id = self.key
-                self.moe_cmd_t.cmd_rsp = self.value
-                self.moe_cmd_t.cmd_type = self.type
+        cmd_table = cmd_t(self.scope[0])
+        cmd_table.cmd_key = self.key
+        cmd_table.cmd_rsp = self.value
+        cmd_table.cmd_scope = self.scope[0]
+        cmd_table.cmd_type = self.type
 
-                db.session.add(self.moe_cmd_t)
-                db.session.commit()                
-            
-            res_data['msg'] = 'finish'
-            res_data['type'] = 1
-            self.setp = 0
-            self.current_user = ''
-            self.interactive = True
+        # share command
+        if(len(self.scope) > 1):
+            cmd_table.cmd_scope = 'shr'
+            res = cmd_table.get_cmds_by_key(cmd_key=self.key)
+        else:
+            res = cmd_table.get_cmd(cmd_key=self.key, scope=self.scope)
+        
+        print(res)
+        
+        # delete others 
+        if(res != [] or res != None):
+            for item in res :
+                item.delete()
+        # add record
+        cmd_table.add()
 
-    # [cmd][type][title][time][position]
-    # [op][12][test][05020600]
-    # [add[test][jell][1]
-    # [del][test][jell][1]
-    def process_cmd(self, proc_data):
-        table = self.bbl_instance_t
+    def write_image(self, value):
+        # download image from line
+        # upload image to imgur
+        self.value = "url to imgur"
+        self.write_db()
+        self.res_data['msg'] = 'img saved'
+        self.res_data['type'] = 1
 
-        str_list = proc_data['text'].splite(" ")
-        opcode = str_list[0]
-        # open team
-        if(opcode == 'op'):
-            table.title = str_list[2]
-            
-            pass
-        elif(opcode == 'add'):
-            pass
-        elif(opcode == 'del'):
-            pass
+    def write_text(self, value):
+        self.value = value
+        self.write_db()
+        self.res_data['msg'] = 'text saved'
+        self.res_data['type'] = 1
+
+    def clear_state(self):
+        self.current_user = ''
+        self.init = False

@@ -18,30 +18,67 @@ def modify():
 def add():
     pass
 
-def process(post_data):
-    res = {}
-    # initial
-    if(adm.line_uid == ''):
-        if(post_data['text'] in admin_cmd):
-            adm.line_id = post_data['line_uid']
-            res = adm.process(post_data)
-            print('admin mode init')
+# --------admin -----------
+# addimg keyword [share]        2/3
+# addtext keyword [share]       2/3
+# --------user -------------
+# query                         1
+# in_op 12 title datetime       4
+# in_del title                  2
+# in_add_p title index          3
+# in_del_p title index          3
+# in_query [title/all]          2
+def command_check(post_data):
+    str_list = post_data['text'].split(" ")
+    if(str_list[0] in admin_cmd):
+        return True
+    else:
+        return False
+
+def process_group(post_data, scope, mag_cmd):
+    if(mag_cmd == True):
+        res = adm.process(post_data, scope)
+        print('admin mode init')
+        return res
     else:
         # admin commend
-        if(post_data['usr_id'] == adm.line_uid):
-            res = adm.process(post_data)
+        print(adm.current_user)
+        print(post_data['line_uid'])
+        if(post_data['line_uid'] == adm.current_user):
+            res = adm.process(post_data, scope)
+            adm.clear_state()
             print('admin mode')
+            return res
         # normal command
         else:
             print('user mode')
             print(post_data)
             prefix = 'nor'
 
-            if(post_data['group_id'] in room_map.keys()):
-                prefix = room_map[post_data['group_id']]
-
             usr = user(prefix)
-            res = usr.process(post_data)
+            res = usr.process(post_data, scope)
+            return res
+
+def process(post_data):
+    res = {}
+    # initial
+
+    mag_cmd = False
+    # check admin command
+    mag_cmd = command_check(post_data)
+    
+    # set scope
+    scope = 'nor'
+    if(post_data.get('group_id') != None):
+        # only process group list
+        if(post_data['group_id'] in room_map.keys()):
+            scope = room_map[post_data['group_id']]
+            res = process_group(post_data, scope, mag_cmd)
+        
+
+    elif(post_data.get('room_id') != None):
+        pass
+
 
     print('----------result-----------')
     print(res)
