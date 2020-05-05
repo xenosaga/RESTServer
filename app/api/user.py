@@ -213,6 +213,7 @@ class user:
         elif(opcode == 'q_inst'):
             self.instance_query(str_list)
 
+    # [keyword]
     def process_query(self, proc_data, scope):
         scope_l = ['shr', scope]
         cmd_table = cmd_t('')
@@ -222,13 +223,15 @@ class user:
         if(res != None):
             self.res_data['msg'] = res.cmd_rsp
             self.res_data['type'] = res.cmd_type
-
+    
+    #[guild] 
     def process_guild(self, proc_data, scope):
         res_text = ''
-        db_val = bbl_guild_t.query.first()
-        print(type(db_val))
-        # for l_id, l_uid, g_id in :
-        #     res_text = res_text + l_id + ' : ' + g_id + '\n'
+        guild_table = guild_t('')
+        res = guild_table.get_all([scope])
+        
+        for item in res:
+            res_text = res_text + item.line_id + ' : ' + item.game_id + '\n'
         self.res_data['msg'] = res_text
         self.res_data['type'] = 1
 

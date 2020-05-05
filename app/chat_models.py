@@ -109,11 +109,11 @@ class guild_t(db.Model):
                                 cls.scope.in_(scope)).all()
 
     @classmethod
-    def get_all(cls,scope):
+    def get_all(cls, scope):
         return cls.query.filter(cls.scope.in_(scope)).all()
 
     def __repr__(self):
-        return '< %s Guild_t %r>' % self.name, self.line_id
+        return '<Guild_t %r>' % self.line_id
 
 class instance_t(db.Model):
     __tablename__ = 'instance_t'
