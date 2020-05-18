@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, render_template
 from . import api
 from .. import db
 from ..chat_models import cmd_t, history_t
@@ -11,7 +11,7 @@ def main_api():
         print('Post')
         req_data = request.json
         res = req_data
-        process(req_data)
+        cmd.process(req_data)
     return jsonify(res)
     
 @api.route('/hello')

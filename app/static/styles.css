@@ -1,0 +1,18 @@
+html {
+
+}
+
+body {
+    margin-top: 16px;
+    margin-left: 20px;
+    background-color: antiquewhite;
+}
+
+form {
+    margin: 0.5em;
+}
+
+#form-input {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}

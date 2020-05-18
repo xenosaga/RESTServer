@@ -1,0 +1,30 @@
+<html>
+<head>
+<title>instance</title>
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <form action="/instance_handle" method="post">
+        <div id="form-input">
+            <label for="inst_date">Date time</label>
+            <input type="datetime" id="inst_date" name="datetime"><br>
+        </div>
+        <div id="form-input">
+            <label for="keyword">Title</label>
+            <input type="text" id="keyword" name="keyword"><br>
+        </div>
+        <div id="form-input">
+            <label>Data type</label>
+            <input type="radio" id="text" name="type" value="12">
+            <label for="text">12</label>
+            <input type="radio" id="image" name="type" value="6">
+            <label for="image">Other</label><br>
+        </div>
+        <div id="form-input">
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+</body>
+</html>

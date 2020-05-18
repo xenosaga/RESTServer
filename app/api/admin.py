@@ -21,6 +21,10 @@ class admin:
         self.res_data = {'msg': 'no premission',
                          'type': 0
                         }
+        self.admin_cmd = ['addimg', 'addtext']
+
+    def check_command(self, text):
+        return text in self.admin_cmd
 
     # proce_data
     #   line_uid
@@ -38,13 +42,14 @@ class admin:
             self.current_user = proc_data['line_uid']
             self.res_data['msg'] = 'input data'
             self.res_data['type'] = 1
-            
+
+        # 同一時間只有一個人管理 
         if(self.current_user != proc_data['line_uid']):
             print('invalid user')
             self.res_data['msg'] = 'Invalid user'
             self.res_data['type'] = 1
             return self.res_data
-            
+        
         if(proc_data['group_id'] != None):
             self.process_group(proc_data, scope)
             

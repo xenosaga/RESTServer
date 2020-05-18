@@ -1,10 +1,14 @@
 from .user import user
 from .admin import admin
+from .scope import scope
+from .command import command
 from .. import room_map
 from .. import admin_id
 from .. import admin_cmd
 
 adm = admin()
+scope = scope()
+cmd = command()
 
 def query():
     pass
@@ -18,22 +22,6 @@ def modify():
 def add():
     pass
 
-# --------admin -----------
-# addimg keyword [share]        2/3
-# addtext keyword [share]       2/3
-# --------user -------------
-# query                         1
-# in_op 12 title datetime       4
-# in_del title                  2
-# in_add_p title index          3
-# in_del_p title index          3
-# in_query [title/all]          2
-def command_check(post_data):
-    str_list = post_data['text'].split(" ")
-    if(str_list[0] in admin_cmd):
-        return True
-    else:
-        return False
 
 def process_group(post_data, scope, mag_cmd):
     if(mag_cmd == True):
@@ -63,25 +51,28 @@ def process(post_data):
     res = {}
     # initial
 
-    mag_cmd = False
+    cmd_code = 0       #query code
+    str_list = post_data['text'].split(" ")
+
     # check admin command
-    mag_cmd = command_check(post_data)
+    cmd_code = cmd.check_command(str_list[0])
+    print(cmd_code)
     
     # set scope
-    scope = 'nor'
-    if(post_data.get('group_id') != None):
-        # only process group list
-        if(post_data['group_id'] in room_map.keys()):
-            scope = room_map[post_data['group_id']]
-            res = process_group(post_data, scope, mag_cmd)
+    # scope = 'nor'
+    # if(post_data.get('group_id') != None):
+    #     # only process group list
+    #     if(post_data['group_id'] in room_map.keys()):
+    #         scope = room_map[post_data['group_id']]
+    #         res = process_group(post_data, scope, mag_cmd)
         
 
-    elif(post_data.get('room_id') != None):
-        pass
+    # elif(post_data.get('room_id') != None):
+    #     pass
 
 
-    print('----------result-----------')
-    print(res)
-    print('---------------------------')
-    pass
+    # print('----------result-----------')
+    # print(res)
+    # print('---------------------------')
+    # pass
 
