@@ -19,16 +19,15 @@ class command():
         if(not self._init_data):
             cmd = command_t()
             res = cmd.get_commands()
-            i = 0
             for item in res:
                 self._commend[item.cmd] = [item.cmd_code, item.cmd_lv]
 
             self._init_data = True
-        
+ 
         try :
             cmd = self._commend[text]
             return cmd
         except :
-            cmd = ['', 0]
+            cmd = ['0', 1]
             return cmd
                 

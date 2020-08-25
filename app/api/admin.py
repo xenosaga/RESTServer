@@ -1,17 +1,15 @@
 
 from .. import db
 from ..chat_models import \
-    cmd_t, history_t, guild_t, instance_t
+    keyword_t, history_t, guild_t, instance_t
 import re
 
 # state less object
 class admin:
 
     def __init__(self):
-        self.current_user = ''
-        
-        self.interactive = False
-        self.proce_type = 'text'
+        self._current_user = ''        
+        self._next_type = None
 
         self.key = ''
         self.value = ''
@@ -21,10 +19,14 @@ class admin:
         self.res_data = {'msg': 'no premission',
                          'type': 0
                         }
-        self.admin_cmd = ['addimg', 'addtext']
 
-    def check_command(self, text):
-        return text in self.admin_cmd
+    # check if in edit mode
+    def edit_mode(self):
+        return self._is_edit
+
+    # check admin
+    def check_admin(self, uid):
+        return (self._current_user == uid)
 
     # proce_data
     #   line_uid
@@ -32,31 +34,44 @@ class admin:
     # res_data
     #   msg
     #   type
-    def process(self, proc_data, scope):
+    def process_key(self, proc_data, cmd_code, scope):
 
-        print(self.current_user)
-        print(proc_data['line_uid'])
+        # print('curr user: ' + self._current_user)
+        # print(proc_data['line_uid'])
 
-        # system guard
-        if(self.current_user == ''):
-            self.current_user = proc_data['line_uid']
-            self.res_data['msg'] = 'input data'
-            self.res_data['type'] = 1
-
-        # 同一時間只有一個人管理 
-        if(self.current_user != proc_data['line_uid']):
-            print('invalid user')
-            self.res_data['msg'] = 'Invalid user'
-            self.res_data['type'] = 1
-            return self.res_data
-        
-        if(proc_data['group_id'] != None):
-            self.process_group(proc_data, scope)
+        if(self._current_user == ''):
+            self._current_user = proc_data['line_uid']
             
-        elif (proc_data['room_id'] != None):
+            # image type
+            if cmd_code[0] == '1':
+                self._next_type = 1
+                self.res_data['msg'] = 'input image'
+            
+            # text type
+            else:
+                self._next_type = 0
+                self.res_data['msg'] = 'input text'
+            self.res_data['type'] = 1
+
+        sc = scope[0]
+        # group mode
+        if(sc[0] == 1):
+            self.process_group(proc_data, scope)
+        
+        # room mode 
+        elif (sc[0] == 0):
             self.process_room(proc_data, scope)
 
         return self.res_data
+
+    def process_data(self, proc_data, cmd_code, scope):
+        # image type
+        if self._next_type == 1:
+            pass
+        # text type
+        else:
+            self.process_group_data
+            pass
 
     def process_room(self, proc_data):
         pass
@@ -64,19 +79,22 @@ class admin:
     # addimg [all]
     # keyword
     # <image>
-    def process_group(self, proc_data, scope):
+    def process_group_key(self, proc_data, scope):
         # default single line mode
         str_list = proc_data['text'].split(" ")
         
         print(str_list)
         # mod scope ( for initial )
-        if(not self.init and len(str_list) == 3):
-            if(str_list[2] == 'share'):
-                self.scope = [scope, 'shr']
-            else:
-                self.scope = [scope]
-            self.init = True
+        if len(str_list) == 3:
+            self._key = str_list[1]
+            if scope[0][1] != 'shr':
+                self._scope = scope
 
+        elif len(str_list) == 2:
+            self._key = str_list[1]
+            self._scope = [scope[0][0]]
+
+    def process_group_data(self, proc_data):
         # command and keyword
         if(str_list[0] == 'addimg'):
             self.proce_type = 'image'

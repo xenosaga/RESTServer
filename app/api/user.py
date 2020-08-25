@@ -1,7 +1,7 @@
 import datetime
 from .. import db
 from ..chat_models \
-    import cmd_t, history_t, guild_t, \
+    import keyword_t, history_t, guild_t, \
         instance_t, instance_player_t
 from flask import jsonify
 

@@ -1,5 +1,6 @@
 from . import db
 
+# line account table
 class account_t(db.Model):
     __tablename__ = 'account_t'
     id = db.Column(db.Integer(), primary_key=True)
@@ -26,14 +27,19 @@ class account_t(db.Model):
     def get_admins(cls, p):
         return cls.query.filter(cls.priority >= p).all()
 
+    @classmethod
+    def get_accounts(cls):
+        return cls.query.all()
+        
     def __repr__(self):
         return '<Account_t %r>' % self.line_uid
 
+# line group table
 class group_t(db.Model):
     __tablename__ = "group_t"
     gid = db.Column(db.String(256), primary_key=True)
     id_type = db.Column(db.Integer())
-    gname = db.Column(db.String(16))
+    scope = db.Column(db.String(16))
 
     def add(self):
         db.session.add(self)
@@ -55,8 +61,9 @@ class group_t(db.Model):
         return cls.query.all()
 
     def __repr__(self):
-        return '<Scope_t %r>' % self.gname
+        return '<Group_t %r>' % self.scope
 
+# line command table
 class command_t(db.Model):
     __tablename__ = "command_t"
     cmd = db.Column(db.String(32), primary_key=True)
@@ -81,6 +88,7 @@ class command_t(db.Model):
     def __repr__(self):
         return '<Command_t %r>' % self.cmd_code
 
+# line command table
 class manage_t(db.Model):
     __tablename__ = "manage_t"
     id = db.Column(db.Integer(), primary_key=True)
@@ -104,6 +112,7 @@ class manage_t(db.Model):
     def __repr__(self):
         return '<Manage_t %r>' % self.keyword
 
+# line bot state table
 class bot_state(db.Model):
     __tablename__ = 'bot_state_t'
     item_text = db.Column(db.String(64), primary_key=True)

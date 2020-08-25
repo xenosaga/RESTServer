@@ -1,7 +1,7 @@
 from flask import jsonify, request, render_template
 from . import api
 from .. import db
-from ..chat_models import cmd_t, history_t
+from ..chat_models import keyword_t, history_t
 from .handler import process
 
 @api.route('/', methods=['POST'])
@@ -11,7 +11,7 @@ def main_api():
         print('Post')
         req_data = request.json
         res = req_data
-        cmd.process(req_data)
+        process(req_data)
     return jsonify(res)
     
 @api.route('/hello')
@@ -35,13 +35,6 @@ def insert():
     his_o.line_uid = data['rsp']
     his_o.scope = data['scope']
     his_o.add()
-
-    # cmd_o = cmd_t('bbl')
-    # cmd_o.cmd_id = data['cmd']
-    # cmd_o.cmd_rsp = data['rsp']
-    # cmd_o.cmd_scope = data['scope']
-    # cmd_o.cmd_type = data['type']
-    # cmd_o.add()
 
     return jsonify(data)
 

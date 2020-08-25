@@ -7,18 +7,21 @@ class scope():
         self._scopes = {}
         self._init_data = False
 
-    def query_group_name(self, gid):
+    # gid       type    scpoe
+    # bbl12345  1       bbl
+    # moe12345  1       moe
+
+    def get_scope(self, gid):
         if(not self._init_data):
             grp = group_t()
             res = grp.get_scopes()
             for item in res:
-                self._scopes[item.gid] = [item.id_type, item.gname]
+                self._scopes[item.gid] = [item.id_type, item.scope]
 
             self._init_data = True
         
-
         try:
-            return self._scopes[gid]
+            scope = self._scopes[gid]
+            return [scope, [1, 'shr']]
         except :
-            print("no scope")
-            return [0, 'none']
+            return ['shr']
