@@ -2,24 +2,38 @@
 {% block title %}instance{% endblock %}
 
 {% block content -%}
-        <form action="/instance_handle" method="post">
-            <div id="form-input">
-                <label for="inst_date">Date time</label>
-                <input type="datetime" id="inst_date" name="datetime"><br>
+<div class="container">
+    <form action="/instance_handle" method="post">
+        <div class="form-group row">
+            <label for="inst_date" class="col-sm-2 col-form-label">Date time</label>
+            <div class="col-sm-10">
+                <input type="datetime" class="form-control" id="inst_date" placeholder="2020/01/01" name="datetime"><br>
             </div>
-            <div id="form-input">
-                <label for="keyword">Title</label>
-                <input type="text" id="keyword" name="keyword"><br>
+        </div>
+        <div class="form-group row">
+            <label for="keyword" class="col-sm-2 col-form-label">Title</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="keyword" placeholder="ccccc" name="keyword"><br>
             </div>
-            <div id="form-input">
-                <label>Data type</label>
-                <input type="radio" id="text" name="type" value="12">
-                <label for="text">12</label>
-                <input type="radio" id="image" name="type" value="6">
-                <label for="image">Other</label><br>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-2">Radios</div>
+            <div class="col-sm-10">
+                <div class="form-check">
+                    <input class="from-check-input" type="radio" id="ntower" name="type" value="12">
+                    <label class="from-check-label" for="ntower">12</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="from-check-input" type="radio" id="other" name="type" value="6">
+                    <label class="from-check-label" for="other">6</label>
+                </div>
+            </div>           
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary">送出</button>
             </div>
-            <div id="form-input">
-                <input type="submit" value="Submit">
-            </div>
-        </form>
+        </div>
+    </form>
+</div>
 {%- endblock content %}
