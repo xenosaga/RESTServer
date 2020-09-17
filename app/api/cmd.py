@@ -1,61 +1,55 @@
-from flask import jsonify, request, render_template
-from . import api
-from .. import db
-from ..chat_models import keyword_t, history_t
-from .handler import process
+from ..sys_model import command_t
 
-@api.route('/', methods=['POST'])
-def main_api():
-    res = {}
-    if(request.method == 'POST'):
-        print('Post')
-        req_data = request.json
-        res = req_data
-        process(req_data)
-    return jsonify(res)
-    
-@api.route('/hello')
-def hello():
-    return jsonify({"Hello": "world"})
-    
+class cmd():
 
-@api.route('/init', methods=['GET', 'POST'])
-def init():
-    db.drop_all()
-    db.create_all()
-    db.session.commit()
-    return 'OK'
+    def __init__(self):
+        self._commend = {}
+        self._init_data = False
+
+    def get_cmd_code(self, text):
+        param_list = text.split(" ")
+        cmd_t = command_t()
+        row = cmd_t.query_command(param_list[0])
+        
+        # default 查詢命令
+        cmd_code = 0
+        cmd_privilege = 0
+        is_valid = True
+        
+        # 在命令列表李
+        if( row != None):
+            cmd_code = row.cmd_code
+            cmd_privilege = row.cmd_lv
+        else :
+            # 非查詢列表
+            if (len(param_list) > 1 ):
+                is_valid = False
+        
+        return [cmd_code, cmd_privilege, is_valid]
+
+    # cmd           code
+    # query         0
+    # addimg        1
+    # addtext       2
+    # guild         10
+    # inst_op       11
+    # inst_del      12
+    # inst_add_p    13
+    # inst_del_p    14
+    # inst_query    15
+    def check_command(self, text):
+        if(not self._init_data):
+            cmd = command_t()
+            res = cmd.get_commands()
+            for item in res:
+                self._commend[item.cmd] = [item.cmd_code, item.cmd_lv]
+
+            self._init_data = True
  
-@api.route('/insert', methods=['POST'])
-def insert():
-    data = request.get_json()
-    
-    his_o = history_t('bbl')
-    his_o.line_msg = data['cmd']
-    his_o.line_uid = data['rsp']
-    his_o.scope = data['scope']
-    his_o.add()
-
-    return jsonify(data)
-
-@api.route('/delete', methods=['POST'])
-def delete():
-    data = request.get_json()
-
-    cmd_data = cmd_t.query.filter_by(cmd_id=data['cmd']).first()
-    db.session.delete(cmd_data)
-    db.session.commit()
-
-    return jsonify(data)
-
-@api.route('/query', methods=['POST'])
-def query():
-    data = request.get_json()
-
-    his_data = history_t('bbl')
-    # row_data = his_data.get_all_message()
-    row_data = his_data.get_msgs_by_scope(data['scope'])
-    for obj in row_data:
-        print(obj.line_msg)
-
-    return 'OK'
+        try :
+            cmd = self._commend[text]
+            return cmd
+        except :
+            cmd = ['0', 1]
+            return cmd
+                

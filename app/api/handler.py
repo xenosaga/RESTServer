@@ -25,7 +25,7 @@ def add():
     pass
 
 
-def process_group(post_data, scope, cmd_code):
+def process_group(post_data, scope, cmd_code, cmd_list):
     print(post_data)
     print(scope)
     print(cmd_code)
@@ -42,64 +42,42 @@ def process_group(post_data, scope, cmd_code):
         else:
 
             pass
-    
-    # if(mag_cmd == True):
-    #     res = adm.process(post_data, scope)
-    #     print('admin mode init')
-    #     return res
-    # else:
-    #     # admin commend
-    #     print(adm.current_user)
-    #     print(post_data['line_uid'])
-    #     if(post_data['line_uid'] == adm.current_user):
-    #         res = adm.process(post_data, scope)
-    #         adm.clear_state()
-    #         print('admin mode')
-    #         return res
-    #     # normal command
-    #     else:
-    #         print('user mode')
-    #         print(post_data)
-    #         prefix = 'nor'
 
-    #         usr = user(prefix)
-    #         res = usr.process(post_data, scope)
-    #         return res
 
 def process(post_data):
     res = {}
 
-    # initial
-    cmd_code = 0       #query code
-    str_list = post_data['text'].split(" ")
+    # get scope
+    scope = scope.get_scope(post_data['group_id'])
 
-    # check admin command
-    cmd_code = cmd.check_command(str_list[0])
-    print(cmd_code)
+    # get user privilege
+    usr_priv = user.get_user_privilege(post_data['line_uid'], post_data['group_id'])
 
-    priority = acct.check_priority(cmd_code, post_data['line_uid'])
-    print(priority)
+    # get cmd code privilage
+    [cmd_code, param] = cmd.get_cmd_code(post_data['text'])
+
     
-    if priority:
-        # set scope
-        scope_list = None
-        if(post_data.get('group_id') != None):
-            scope_list = scope.get_scope(post_data['group_id'])
-            # print(scope_list)
-            # only process group list
-            res = process_group(post_data, scope_list, cmd_code)
+    # # initial
+    # cmd_code = 0       #query code
+    # cmd_list = post_data['text'].split(" ")
 
-        pass
-    else :
-        return res
-        
+    # # check admin command
+    # cmd_code = cmd.check_command(cmd_list[0])
+    # print(cmd_code)
 
-    # elif(post_data.get('room_id') != None):
+    # priority = acct.check_priority(cmd_code, post_data['line_uid'])
+    # print(priority)
+    
+    # if priority:
+    #     # set scope
+    #     scope_list = None
+    #     if(post_data.get('group_id') != None):
+    #         scope_list = scope.get_scope(post_data['group_id'])
+    #         # print(scope_list)
+    #         # only process group list
+    #         res = process_group(post_data, scope_list, cmd_code, cmd_lsit)
+
     #     pass
-
-
-    # print('----------result-----------')
-    # print(res)
-    # print('---------------------------')
-    # pass
+    # else :
+    #     return res
 
