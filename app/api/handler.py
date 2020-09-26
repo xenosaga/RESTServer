@@ -1,83 +1,63 @@
-from .user import user
-from .admin import admin
-from .scope import scope
-from .command import command
-from .account import account
-from .. import room_map
-from .. import admin_id
-from .. import admin_cmd
+from .parser import parser
 
-adm = admin()
-scope = scope()
-cmd = command()
-acct = account()
+from .. import db
+from ..models import User, History
 
-def query():
-    pass
+p = parser()
 
-def delete():
-    pass
-
-def modify():
-    pass
-
-def add():
-    pass
-
-
-def process_group(post_data, scope, cmd_code, cmd_list):
-    print(post_data)
-    print(scope)
-    print(cmd_code)
-    
-    # admin command
-    if cmd_code[1] == 2:
-        res = adm.process_key(post_data, cmd_code, scope)
-        print(res)
-    else:
-        if adm.edit_mode() and adm.check_admin(uid):
-            adm.process_value(post_data)
-            pass
-
-        else:
-
-            pass
-
+# cmd           code
+# ------------------------
+# query         0
+# addimg        1
+# addtext       2
+# addsticker    3
+# modimg        4
+# modtext       5
+# modsticker    6
+# deleteimg     7
+# delete        8
+# guild         10
+# inst_op       11
+# inst_del      12
+# inst_add_p    13
+# inst_del_p    14
+# inst_query    15
 
 def process(post_data):
     res = {}
 
-    # get scope
-    scope = scope.get_scope(post_data['group_id'])
-
-    # get user privilege
-    usr_priv = user.get_user_privilege(post_data['line_uid'], post_data['group_id'])
+    # write log
+    h = History(line_uid=post_data['line_uid'], 
+                line_group=post_data['line_group'],
+                line_msg=post_data['text'])
+    db.session.add(h)
+    db.session.commit()    
 
     # get cmd code privilage
-    [cmd_code, param] = cmd.get_cmd_code(post_data['text'])
+    [cmd_code, param, permission] = p.parse_text(post_data['text'])
+
+
+    # check permission
+    u = User()
+    qu = u.query.filter_by(line_uid=post_data['line_uid'])
+    
+    # Write data mode(overwrite cmd_code)
+    if( u.process_lock ):
+        # image
+        if( post_data['type'] == 0):
+            cmd_code = 4
+        # text
+        elif( post_data['type'] == 1):
+            cmd_code = 5
+        # sticker
+        elif( post_data['type'] == 2):
+            cmd_code = 6 
+
+    # 沒有權限
+    if( not qu.can(permission) ):
+        pass
+    else :
+        p.process_keyword(cmd_code, param, u.line_uid)
+        pass
 
     
-    # # initial
-    # cmd_code = 0       #query code
-    # cmd_list = post_data['text'].split(" ")
-
-    # # check admin command
-    # cmd_code = cmd.check_command(cmd_list[0])
-    # print(cmd_code)
-
-    # priority = acct.check_priority(cmd_code, post_data['line_uid'])
-    # print(priority)
-    
-    # if priority:
-    #     # set scope
-    #     scope_list = None
-    #     if(post_data.get('group_id') != None):
-    #         scope_list = scope.get_scope(post_data['group_id'])
-    #         # print(scope_list)
-    #         # only process group list
-    #         res = process_group(post_data, scope_list, cmd_code, cmd_lsit)
-
-    #     pass
-    # else :
-    #     return res
-

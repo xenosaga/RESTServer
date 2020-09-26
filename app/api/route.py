@@ -1,9 +1,9 @@
 from flask import jsonify, request, render_template
 from . import api
 from .. import db
-from ..chat_models import keyword_t, history_t
 from .handler import process
 
+# Line api process
 @api.route('/', methods=['POST'])
 def main_api():
     res = {}

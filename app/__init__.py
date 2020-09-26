@@ -7,17 +7,12 @@ from flask_bootstrap import  Bootstrap
 
 mail = Mail()
 db = SQLAlchemy()
-room_map = {
-    "48242894131452": "bbl",
-    "79958556256998": "moe"
-}
-admin_id = ['55555555555']
-admin_cmd = ['addtext', 'addimg']
 
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+    
     Bootstrap(app)
     mail.init_app(app)
     db.init_app(app)
