@@ -43,7 +43,7 @@ class Role(db.Model):
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    line_id = db.Column(db.Unicode(64), unique=True, index=True)
+    line_id = db.Column(db.Unicode(64), index=True)
     line_uid = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     process_lock = db.Column(db.Boolean, default=False)
@@ -74,9 +74,9 @@ class Guild(db.Model):
     __tablename__ = 'guild'
     id = db.Column(db.Integer, primary_key=True)
     guild_name = db.Column(db.Unicode(30))
-    line_id = db.Column(db.String(64))
+    line_id = db.Column(db.Unicode(64))
     line_uid = db.Column(db.String(256))
-    game_id = db.Column(db.String(16))
+    game_id = db.Column(db.Unicode(16))
 
     def __repr__(self):
         return '<Guild %r>' % self.guild_name
