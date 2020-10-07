@@ -28,19 +28,18 @@ class parser():
 
     def parse_text(self, text):
         param_list = text.split(" ")
-        cmd = Command()
-        row = cmd.query.filter_by(cmd_word=param_list[0]).first()
-        
+        row = Command.query.filter_by(cmd_word=param_list[0]).first()
+        print(row)
         # default 查詢命令
         cmd_code = 0
-        permission = 0
+        premission = 0
         
         # 在命令列表李(非查命令)
         if( row != None):
             cmd_code = row.cmd_code
-            permission = row.permission
+            premission = row.premission
         
-        return [cmd_code, param_list, permission]
+        return [cmd_code, param_list, premission]
 
     def check_command(self, text):
         if(not self._init_data):

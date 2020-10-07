@@ -2,6 +2,7 @@ from flask import jsonify, request, render_template
 from . import api
 from .. import db
 from .handler import process
+from ..models import Command, Role
 
 # Line api process
 @api.route('/', methods=['POST'])
@@ -10,8 +11,7 @@ def main_api():
     if(request.method == 'POST'):
         print('Post')
         req_data = request.json
-        res = req_data
-        process(req_data)
+        res =   process(req_data)
     return jsonify(res)
     
 @api.route('/hello')
@@ -24,6 +24,8 @@ def init():
     db.drop_all()
     db.create_all()
     db.session.commit()
+    Command.insert_commands()
+    Role.insert_roles()
     return 'OK'
  
 @api.route('/insert', methods=['POST'])

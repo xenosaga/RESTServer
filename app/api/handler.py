@@ -1,7 +1,8 @@
 from .parser import parser
 
 from .. import db
-from ..models import User, History
+from ..models import Role, User, History
+from .utilty import reset_response
 
 p = parser()
 
@@ -27,37 +28,62 @@ def process(post_data):
     res = {}
 
     # write log
-    h = History(line_uid=post_data['line_uid'], 
-                line_group=post_data['line_group'],
-                line_msg=post_data['text'])
+    h = History(line_uid=post_data['src_uid'], 
+                src_gid=post_data['src_gid'],
+                src_type=post_data['src_type'],
+                line_msg=post_data['msg_text'])
     db.session.add(h)
     db.session.commit()    
 
     # get cmd code privilage
-    [cmd_code, param, permission] = p.parse_text(post_data['text'])
+    [cmd_code, param, permission] = p.parse_text(post_data['msg_text'])
 
+    print('cmd_code: ', cmd_code)
+    print('param: ', param)
+    print('permission: ', permission)
 
     # check permission
-    u = User()
-    qu = u.query.filter_by(line_uid=post_data['line_uid'])
+    qu = User.query.filter_by(line_uid=post_data['src_uid']).first()
     
+    print('--------------------')  
+    if qu is None:
+        role = Role.query.filter_by(default=True).first()
+        print('permission: ', role.permission)
+
+        # add user
+        u = User()
+        u.line_id = ''
+        u.line_uid = post_data['src_uid']
+        u.role_id = role.permission
+        u.process_lock = False
+        u.last_word = ''
+
+        db.session.add(u)
+        db.session.commit()
+        print(u.role_id)
+        return res
+
     # Write data mode(overwrite cmd_code)
-    if( u.process_lock ):
+    if( qu.process_lock ):
         # image
-        if( post_data['type'] == 0):
+        if( post_data['msg_type'] == 'text'):
             cmd_code = 4
         # text
-        elif( post_data['type'] == 1):
+        elif( post_data['msg_type'] == 'image'):
+            param[0] = post_data['msg_id']
             cmd_code = 5
         # sticker
-        elif( post_data['type'] == 2):
+        elif( post_data['msg_type'] == 'sticker'):
             cmd_code = 6 
 
     # 沒有權限
     if( not qu.can(permission) ):
+        print('no premission')
+        reset_response(res)
         pass
     else :
-        p.process_keyword(cmd_code, param, u.line_uid)
+        print('process')
+        res = p.process_keyword(cmd_code, param, qu.line_uid)
         pass
-
     
+    return res
