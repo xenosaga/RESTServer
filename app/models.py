@@ -124,7 +124,7 @@ class Command(db.Model):
             'modtext':      (5, 13),
             'modsticker':   (6, 13),
             'delimg':       (7, 13),
-            'deltext':      (8, 13),
+            'del':          (8, 13),
             'guild':        (10, 13),
             'instopen':     (11, 0),
             'instdelete':   (12, 0),

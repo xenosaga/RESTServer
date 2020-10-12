@@ -16,7 +16,7 @@ def AddText(line_uid, param):
     db.session.commit()
 
     res['type'] = 1
-    res['msg_text'] = 'input data'
+    res['msg_text'] = 'input text'
 
     return res
     pass
@@ -36,13 +36,28 @@ def AddImg(line_uid, param):
     db.session.commit()
 
     res['type'] = 1
-    res['msg_text'] = 'input data'
+    res['msg_text'] = 'input image'
 
+    print(res)
     return res
-    pass
 
 def AddSticker(line_uid, param):
-    pass
+    print('add sticker')
+    res = {}
+    reset_response(res)
+
+    print(param)
+
+    u = User.query.filter_by(line_uid=line_uid).first()
+    u.last_word = param[1]
+    u.process_lock = True
+    u.lock_type = 3
+    db.session.add(u)
+    db.session.commit()
+
+    res['type'] = 1
+    res['msg_text'] = 'input sticker'
+    return res
 
 # query command
 # eg
@@ -66,21 +81,55 @@ def Query(param):
         elif (r.rtype == 2):
             res['url_origin'] = r.response
             res['url_preview'] = r.response
+            res['msg_descr'] = r.keyword
         elif (r.rtype == 3):
             res['pid'] = r.package
-            res['sid'] = r.sticker
+            res['sid'] = r.stick
 
     print('result is ')
     print(res)
     return res
 
 def Delete(param):
-    pass
+    print('delete')
 
+    res = {}
+    reset_response(res)
+
+    gd = Gdata.query.filter_by(keyword=param[1]).first()
+    if((not gd is None) and (gd.rtype != 2)):
+        db.session.delete(gd)
+        db.session.commit()
+        res['type'] = 1
+        res['msg_text'] = 'delete ' + param[1]
+    else:
+        res['type'] = 1
+        res['msg_text'] = 'nothing to do'
+    
+    return res
+    
 def DeleteImg(param):
-    pass
+    print('delete image')
 
-def ModImg(line_uid, param):
+    res = {}
+    reset_response(res)
+
+    gd = Gdata.query.filter_by(keyword=param[1]).first()
+    if((not gd is None) and (gd.rtype is 2)):
+        url = gd.response
+        # delete from imgurl
+
+        db.session.delete(gd)
+        db.session.commit()
+        res['type'] = 1
+        res['msg_text'] = 'delete image : ' + param[1]
+    else:
+        res['type'] = 1
+        res['msg_text'] = 'nothing to do'
+
+    return res
+
+def ModImg(line_uid, msg_id):
     print('modify image')
 
     res = {}
@@ -88,7 +137,32 @@ def ModImg(line_uid, param):
 
     # clean flag 
     u = User.query.filter_by(line_uid=line_uid).first()
-    u.process_lock = 0
+    u.process_lock = False
+    db.session.add(u)
+    db.session.commit()
+
+    gd = Gdata()
+    gd.keyword = u.last_word
+    gd.response = msg_id
+    gd.stick = 0
+    gd.package = 0
+    gd.rtype = 2
+    db.session.add(gd)
+    db.session.commit()
+    
+    res['type'] = 1
+    res['msg_text'] = 'img update finished'
+    return res
+    
+def ModText(line_uid, param):
+    print('modify text')
+    
+    res = {}
+    reset_response(res)
+
+    # clean flag 
+    u = User.query.filter_by(line_uid=line_uid).first()
+    u.process_lock = False
     db.session.add(u)
     db.session.commit()
 
@@ -97,16 +171,67 @@ def ModImg(line_uid, param):
     gd.response = param[0]
     gd.stick = 0
     gd.package = 0
-    gd.rtype = 2
+    gd.rtype = 1
+    db.session.add(gd)
+    db.session.commit()
+
+    res['type'] = 1
+    res['msg_text'] = 'text update finished'
+    
+    return res
+    
+def ModSticker(line_uid, sid, pid):
+    print('modify sticker')
+
+    res = {}
+    reset_response(res)
+
+    # clean flag 
+    u = User.query.filter_by(line_uid=line_uid).first()
+    u.process_lock = False
+    db.session.add(u)
+    db.session.commit()
+
+    gd = Gdata()
+    gd.keyword = u.last_word
+    gd.response = ''
+    gd.stick = sid
+    gd.package = pid
+    gd.rtype = 3
     db.session.add(gd)
     db.session.commit()
     
+    res['type'] = 1
+    res['msg_text'] = 'sticker update finished'
+    
+    return res
+
+def Guild(param):
+    print('guild')
+
+    res = {}
+    reset_response(res)
+
     pass
 
-def ModText(line_uid, param):
+def InstOpen(param):
+    print('Inst open')
+
     pass
 
-def ModSticker(line_uid, param):
+def InstDelete(param):
+    print('Inst delete')
+
+    pass
+
+def InstAddPlayer(param):
+    print('Inst add player')
+
+    pass
+
+def InstDelPlayer(param):
+    print('Inst del player')
+
     pass
 
 def reset_response(res):

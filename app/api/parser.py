@@ -1,7 +1,7 @@
 from ..models import Role, User, Command
 from .utilty import AddText, AddImg, AddSticker, \
         ModImg, ModSticker, ModText, \
-        Query, DeleteImg, Delete
+        Query, DeleteImg, Delete, Guild, InstOpen
 
 class CommandCode:
     QUERY = 0
@@ -57,7 +57,11 @@ class parser():
             cmd = ['0', 1]
             return cmd
                 
-    def process_keyword(self, cmd_code, param, line_uid):
+    def process_keyword(self, cmd_code, param, line_uid, msg_id, sid, pid):
+        print('process keyword')
+        print('cmd_code : ', cmd_code)
+        print('Command code: ', CommandCode.MOD_IMG)
+
         if( cmd_code == CommandCode.QUERY ):
             return Query(param)
         elif( cmd_code == CommandCode.ADD_IMG):
@@ -67,13 +71,17 @@ class parser():
         elif( cmd_code == CommandCode.ADD_STICKER):
             return AddSticker(line_uid, param)
         elif( cmd_code == CommandCode.MOD_IMG ):
-            return ModImg(line_uid, param)
+            return ModImg(line_uid, msg_id)
         elif( cmd_code == CommandCode.MOD_TEXT ):
             return ModText(line_uid, param)
         elif( cmd_code == CommandCode.MOD_STICKER ):
-            return ModSticker(line_uid, param)
+            return ModSticker(line_uid, sid, pid)
         elif( cmd_code == CommandCode.DELETE_IMG ):
             return DeleteImg(param)
         elif( cmd_code == CommandCode.DELETE):
             return Delete(param) 
+        elif( cmd_code == CommandCode.GUILD):
+            return Guild()
+        elif( cmd_code == CommandCode.INST_OPEN):
+            return InstOpen(param)
         pass

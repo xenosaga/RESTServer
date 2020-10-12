@@ -66,10 +66,10 @@ def process(post_data):
     # Write data mode(overwrite cmd_code)
     if( qu.process_lock ):
         # image
-        if( post_data['msg_type'] == 'text'):
+        if( post_data['msg_type'] == 'image'):
             cmd_code = 4
         # text
-        elif( post_data['msg_type'] == 'image'):
+        elif( post_data['msg_type'] == 'text'):
             param[0] = post_data['msg_id']
             cmd_code = 5
         # sticker
@@ -83,7 +83,9 @@ def process(post_data):
         pass
     else :
         print('process')
-        res = p.process_keyword(cmd_code, param, qu.line_uid)
+        res = p.process_keyword(cmd_code, param, qu.line_uid, 
+            post_data['msg_id'], post_data['msg_sid'], post_data['msg_pid'])
+        print(res)
         pass
     
     return res
