@@ -1,5 +1,8 @@
 from .. import db
 from ..models import Gdata, Gplayer, Guild, User, Instence
+from .emu import UserLockType, RspDataType
+from flask import jsonify
+from .message import GetTimeMenu
 
 def AddText(line_uid, param):
     print('addtext')
@@ -11,11 +14,11 @@ def AddText(line_uid, param):
     u = User.query.filter_by(line_uid=line_uid).first()
     u.last_word = param[1]
     u.process_lock = True
-    u.lock_type = 1
+    u.lock_type = UserLockType.TEXT_LOCK
     db.session.add(u)
     db.session.commit()
 
-    res['type'] = 1
+    res['type'] = RspDataType.TEXT
     res['msg_text'] = 'input text'
 
     return res
@@ -31,11 +34,11 @@ def AddImg(line_uid, param):
     u = User.query.filter_by(line_uid=line_uid).first()
     u.last_word = param[1]
     u.process_lock = True
-    u.lock_type = 2
+    u.lock_type = UserLockType.IMG_LOCK
     db.session.add(u)
     db.session.commit()
 
-    res['type'] = 1
+    res['type'] = RspDataType.TEXT
     res['msg_text'] = 'input image'
 
     print(res)
@@ -51,11 +54,11 @@ def AddSticker(line_uid, param):
     u = User.query.filter_by(line_uid=line_uid).first()
     u.last_word = param[1]
     u.process_lock = True
-    u.lock_type = 3
+    u.lock_type = UserLockType.STICKER_LOCK
     db.session.add(u)
     db.session.commit()
 
-    res['type'] = 1
+    res['type'] = RspDataType.TEXT
     res['msg_text'] = 'input sticker'
     return res
 
@@ -71,18 +74,18 @@ def Query(param):
     print('qstring: ', qstring)
     r = Gdata.query.filter_by(keyword=qstring).first()
 
-    print(r.rtype)
     # 有找到東西
     if(not r is None):
+        print(r.rtype)
         res['type'] = r.rtype
         
-        if(r.rtype == 1):
+        if(r.rtype == RspDataType.TEXT):
             res['msg_text'] = r.response
-        elif (r.rtype == 2):
+        elif (r.rtype == RspDataType.IMG):
             res['url_origin'] = r.response
             res['url_preview'] = r.response
             res['msg_descr'] = r.keyword
-        elif (r.rtype == 3):
+        elif (r.rtype == RspDataType.STICKER):
             res['pid'] = r.package
             res['sid'] = r.stick
 
@@ -100,10 +103,10 @@ def Delete(param):
     if((not gd is None) and (gd.rtype != 2)):
         db.session.delete(gd)
         db.session.commit()
-        res['type'] = 1
+        res['type'] = RspDataType.TEXT
         res['msg_text'] = 'delete ' + param[1]
     else:
-        res['type'] = 1
+        res['type'] = RspDataType.TEXT
         res['msg_text'] = 'nothing to do'
     
     return res
@@ -121,10 +124,10 @@ def DeleteImg(param):
 
         db.session.delete(gd)
         db.session.commit()
-        res['type'] = 1
+        res['type'] = RspDataType.TEXT
         res['msg_text'] = 'delete image : ' + param[1]
     else:
-        res['type'] = 1
+        res['type'] = RspDataType.TEXT
         res['msg_text'] = 'nothing to do'
 
     return res
@@ -150,7 +153,7 @@ def ModImg(line_uid, msg_id):
     db.session.add(gd)
     db.session.commit()
     
-    res['type'] = 1
+    res['type'] = RspDataType.TEXT
     res['msg_text'] = 'img update finished'
     return res
     
@@ -175,7 +178,7 @@ def ModText(line_uid, param):
     db.session.add(gd)
     db.session.commit()
 
-    res['type'] = 1
+    res['type'] = RspDataType.TEXT
     res['msg_text'] = 'text update finished'
     
     return res
@@ -201,41 +204,103 @@ def ModSticker(line_uid, sid, pid):
     db.session.add(gd)
     db.session.commit()
     
-    res['type'] = 1
+    res['type'] = RspDataType.TEXT
     res['msg_text'] = 'sticker update finished'
     
     return res
 
-def Guild(param):
+def GuildList():
     print('guild')
 
     res = {}
     reset_response(res)
 
-    pass
+    mbrs = Guild.query.filter_by(guild_name='bbl').all()
+    
+    rows = []
+    for m in mbrs:
+        row = [m.game_id, m.line_id, m.game_job]
+        rows.append(row)
 
-def InstOpen(param):
+    res['type'] = RspDataType.FLEX
+    res['msg_flex'] = rows
+
+    return res
+
+def InstOpen(line_uid, param):
     print('Inst open')
+    
+    res = {}
+    reset_response(res)
 
-    pass
+    # Lock state
+    u = User.query.filter_by(line_uid=line_uid).first()
+    u.process_lock = True
+    u.lock_type = UserLockType.INST_LOCK
+    u.last_word = param[1]
+    db.session.add(u)
+    db.session.commit()
 
-def InstDelete(param):
+    ins = Instence()
+    ins.title = param[1]
+    ins.game_type = param[2]
+    ins.create_user = line_uid
+    ins.max_player = 6
+    if( param[2] == '12'):
+        ins.max_player = 12
+    ins.cur_palyer = 0
+    db.session.add(ins)
+    db.session.commit()
+
+    TimeMenu = GetTimeMenu(ins.title)
+
+    res['type'] = RspDataType.FLEX
+    res['msg_flex'] = TimeMenu
+
+    return res
+
+def InstDelete(line_uid, param):
     print('Inst delete')
 
-    pass
+    res = {}
+    reset_response(res)
 
-def InstAddPlayer(param):
+    u = User.query.filter_by(line_uid=line_uid).first()
+    u.process_lock = False
+    u.lock_type = UserLockType.UNLOCK
+    db.session.add(u)
+    db.session.commit()
+
+    ins = Instence.query.filter_by(title=param[1]).first()
+    if( line_uid == ins.create_user ):
+        db.session.delete(ins)
+        db.session.commit()
+        res['type'] = RspDataType.TEXT
+        res['msg_text'] = param[1] + " is deleted "
+
+    return res
+
+def InstAddPlayer(line_uid, param):
     print('Inst add player')
 
-    pass
+    res = {}
+    reset_response(res)
 
-def InstDelPlayer(param):
+
+
+    return res
+
+def InstDelPlayer(line_uid, param):
     print('Inst del player')
 
-    pass
+    res = {}
+    reset_response(res)
+
+
+    return res
 
 def reset_response(res):
-    res['type'] = 0
+    res['type'] = RspDataType.SILENT
     res['msg_text'] = ''
     res['msg_descr'] = ''
     res['msg_alter'] = ''

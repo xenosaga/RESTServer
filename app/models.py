@@ -44,10 +44,33 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     line_id = db.Column(db.Unicode(64), index=True)
     line_uid = db.Column(db.String(64), unique=True, index=True)
+    line_group = db.Column(db.String(64))
     role_id = db.Column(db.Integer)
     process_lock = db.Column(db.Boolean, default=False)
     lock_type = db.Column(db.SmallInteger, default=0)
     last_word = db.Column(db.Unicode(128))
+
+    @staticmethod
+    def init_testUser():
+        users = {
+            'admin1': ('admin1_id', 13, 0, 0, 'bbl12345'),
+            'admin2': ('admin2_id', 13, 0, 0, 'bbl12345'),
+            'user1':  ('user1_id',  0,  0, 0, 'bbl12345'),
+            'user2':  ('user2_id',  0,  0, 0, 'bbl12345')
+        }
+
+        for u in users:
+            usr = User.query.filter_by(line_uid=u).first()
+            if usr is None:
+                usr = User(line_uid=u)
+            usr.line_id = users[u][0]
+            usr.role_id = users[u][1]
+            usr.process_lock = users[u][2]
+            usr.lock_type = users[u][3]
+            usr.line_group = users[u][4]
+            db.session.add(usr)
+
+        db.session.commit()
 
     # 傳入 command 的 permission
     def can(self, permission):
@@ -76,7 +99,29 @@ class Guild(db.Model):
     guild_name = db.Column(db.Unicode(30))
     line_id = db.Column(db.Unicode(64))
     line_uid = db.Column(db.String(256))
+    game_job = db.Column(db.Unicode(30))
     game_id = db.Column(db.Unicode(16))
+
+    @staticmethod
+    def init_testMember():
+        mbrs = {
+            'user1_id': ('bbl', 'user1', 'j1', 'game_id1'),
+            'user2_id': ('bbl', 'user2', 'j1', 'game_id2'),
+            'user3_id': ('bbl', 'user3', 'j2', 'game_id3'),
+            'user4_id': ('bbl', 'user4', 'j3', 'game_id4')
+        }
+
+        for m in mbrs:
+            mbr = Guild.query.filter_by(line_uid=mbrs[m][1], game_job=mbrs[m][2]).first()
+            if mbr is None:
+                mbr = Guild(line_id=m)
+            mbr.guild_name = mbrs[m][0]
+            mbr.line_uid = mbrs[m][1]
+            mbr.game_job = mbrs[m][2]
+            mbr.game_id = mbrs[m][3]
+            db.session.add(mbr)
+
+        db.session.commit()
 
     def __repr__(self):
         return '<Guild %r>' % self.guild_name
@@ -89,7 +134,7 @@ class Instence(db.Model):
     date_time = db.Column(db.DateTime)
     max_player = db.Column(db.Integer)
     cur_palyer = db.Column(db.Integer, default=1)
-    users = db.relationship('Gplayer', backref='instance', lazy='dynamic')
+    create_user = db.Column(db.String(64))
 
     def __repr__(self):
         return '<Instance %r>' % self.title
@@ -98,7 +143,7 @@ class Instence(db.Model):
 class Gplayer(db.Model):
     __tablename__ = 'gplayer'
     id = db.Column(db.Integer, primary_key=True)
-    inst_title = db.Column(db.Unicode(256), db.ForeignKey('instance.title'))
+    inst_title = db.Column(db.Unicode(256))
     game_id = db.Column(db.Unicode(16))
     line_uid = db.Column(db.String(256))
     team_id = db.Column(db.Integer)
@@ -125,7 +170,7 @@ class Command(db.Model):
             'modsticker':   (6, 13),
             'delimg':       (7, 13),
             'del':          (8, 13),
-            'guild':        (10, 13),
+            'guild':        (10, 0),
             'instopen':     (11, 0),
             'instdelete':   (12, 0),
             'instaddplayer':(13, 0),

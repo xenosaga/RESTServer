@@ -3,6 +3,7 @@ from .parser import parser
 from .. import db
 from ..models import Role, User, History
 from .utilty import reset_response
+from .emu import UserLockType
 
 p = parser()
 
@@ -66,14 +67,14 @@ def process(post_data):
     # Write data mode(overwrite cmd_code)
     if( qu.process_lock ):
         # image
-        if( post_data['msg_type'] == 'image'):
+        if( qu.lock_type == UserLockType.IMG_LOCK):
             cmd_code = 4
         # text
-        elif( post_data['msg_type'] == 'text'):
+        elif( qu.lock_type == UserLockType.TEXT_LOCK):
             param[0] = post_data['msg_id']
             cmd_code = 5
         # sticker
-        elif( post_data['msg_type'] == 'sticker'):
+        elif( qu.lock_type == UserLockType.STICKER_LOCK):
             cmd_code = 6 
 
     # 沒有權限

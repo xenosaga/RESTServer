@@ -2,7 +2,7 @@ from flask import jsonify, request, render_template
 from . import api
 from .. import db
 from .handler import process
-from ..models import Command, Role
+from ..models import Command, Role, User, Guild
 
 # Line api process
 @api.route('/', methods=['POST'])
@@ -26,6 +26,8 @@ def init():
     db.session.commit()
     Command.insert_commands()
     Role.insert_roles()
+    User.init_testUser()
+    Guild.init_testMember()
     return 'OK'
  
 @api.route('/insert', methods=['POST'])
