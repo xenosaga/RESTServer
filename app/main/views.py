@@ -26,6 +26,10 @@ def instance():
 def contact():
     return render_template('contact.html')
 
+@main.route('/chat', methods=['GET'])
+def chat():
+    return render_template('chat.html')
+
 @main.route('/upload_handle', methods=['POST'])
 def upload_handle():
     print('-----------------------------------\n')

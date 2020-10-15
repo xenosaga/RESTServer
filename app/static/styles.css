@@ -1,18 +1,15 @@
 html {
-
 }
 
-body {
-    margin-top: 16px;
-    margin-left: 20px;
-    background-color: antiquewhite;
+.scroll-area {
+  width: 100%;
+  height: 300px;
+  margin-top: 20px;
+  /* background-color:green; */
+  float: left;
+  overflow-y: scroll;
 }
 
-form {
-    margin: 0.5em;
-}
-
-#form-input {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+.card-no-border {
+    border: none;
 }
