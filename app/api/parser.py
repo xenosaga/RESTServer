@@ -3,7 +3,8 @@ from .utilty import AddText, AddImg, AddSticker, \
         ModImg, ModSticker, ModText, \
         Query, DeleteImg, Delete, GuildList, \
         InstOpen, InstDelete, InstQuery, \
-        InstAddPlayer, InstDelPlayer
+        InstAddPlayer, InstDelPlayer, \
+        PostbackInst
 from .emu import CommandCode
 
 class parser():
@@ -79,4 +80,9 @@ class parser():
             return InstDelPlayer(line_uid, param)
         elif( cmd_code == CommandCode.INST_QUERY):
             return InstQuery()
+        pass
+
+    def process_pb(self, data, param):
+        PostbackInst(data, param['datetime'])
+
         pass

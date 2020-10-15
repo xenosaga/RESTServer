@@ -1,7 +1,7 @@
 from flask import jsonify, request, render_template
 from . import api
 from .. import db
-from .handler import process
+from .handler import process, process_pb
 from ..models import Command, Role, User, Guild
 
 # Line api process
@@ -14,11 +14,18 @@ def main_api():
         res =   process(req_data)
     return jsonify(res)
     
+@api.route('/postback', methods=['POST', 'GET'])
+def post_back():
+    if(request.method == 'POST'):
+        print('post back')
+        req_data = request.json
+        res = process_pb(req_data)
+    pass
+
 @api.route('/hello')
 def hello():
     return jsonify({"Hello": "world"})
     
-
 @api.route('/init', methods=['GET', 'POST'])
 def init():
     db.drop_all()

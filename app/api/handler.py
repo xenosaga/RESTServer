@@ -90,3 +90,8 @@ def process(post_data):
         pass
     
     return res
+
+# post back data
+def process_pb(post_data):
+    print('post back')
+    p.process_pb(post_data['data'], post_data['params'])

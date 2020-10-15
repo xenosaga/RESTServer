@@ -392,6 +392,16 @@ def InstDelPlayer(line_uid, param):
 
     return res
 
+def PostbackInst(title, datetime):
+    
+    ins = Instence.query.filter_by(title=title).first()
+    if(ins is not None):
+        ins.date_time = datetime
+        db.session.add(ins)
+        db.session.commit()
+        
+    pass
+
 def reset_response(res):
     res['type'] = RspDataType.SILENT
     res['msg_text'] = ''
