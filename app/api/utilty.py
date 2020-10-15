@@ -233,6 +233,13 @@ def InstOpen(line_uid, param):
     res = {}
     reset_response(res)
 
+    # check if has in database
+    ins = Instence.query.filter_by(title=param[1]).first()
+    if (ins is not None) :
+        res['type'] = RspDataType.TEXT
+        res['msg_text'] = 'already this title'
+        return res
+
     # Lock state
     u = User.query.filter_by(line_uid=line_uid).first()
     u.process_lock = True
@@ -241,6 +248,7 @@ def InstOpen(line_uid, param):
     db.session.add(u)
     db.session.commit()
 
+    # Insert instence
     ins = Instence()
     ins.title = param[1]
     ins.game_type = param[2]
@@ -252,6 +260,7 @@ def InstOpen(line_uid, param):
     db.session.add(ins)
     db.session.commit()
 
+    # create time menu
     TimeMenu = GetTimeMenu(ins.title)
 
     res['type'] = RspDataType.FLEX
@@ -278,6 +287,27 @@ def InstDelete(line_uid, param):
         res['type'] = RspDataType.TEXT
         res['msg_text'] = param[1] + " is deleted "
 
+    res['type'] = RspDataType.FLEX
+    res['msg_flex'] = rows
+
+    return res
+
+def InstQuery():
+    print('Inst query')
+
+    res = {}
+    reset_response(res)
+
+    ins = Instence.query.all()
+
+    rows = []
+    for i in ins:
+        row = [i.title, i.game_type, i.date_time, i.cur_palyer]
+        rows.append(row)
+
+    res['type'] = RspDataType.FLEX
+    res['msg_flex'] = rows
+
     return res
 
 def InstAddPlayer(line_uid, param):
@@ -286,7 +316,48 @@ def InstAddPlayer(line_uid, param):
     res = {}
     reset_response(res)
 
+    # check user
+    u = User.query.filter_by(line_uid=line_uid).first()
+    if( u is None):
+        res['type'] = RspDataType.TEXT
+        res['msg_text'] = 'No such user'
+        return res
 
+    # chexk instance
+    ins = Instence.query.filter_by(title=param[1]).first()
+    if( ins is None):
+        res['type'] = RspDataType.TEXT
+        res['msg_text'] = 'No such title'
+        return res
+
+    # check has been list
+    gp = Gplayer.query.filter_by(line_uid=line_uid, 
+                                 inst_title=param[1], 
+                                 game_id=param[2]).first()
+    if (gp is None) :
+        gp = Gplayer()
+        gp.inst_title = param[1]
+        gp.game_id = param[2]
+        gp.line_uid = line_uid
+        gp.team_id = 1
+        if( ins.max_player == 12 and ins.cur_palyer >= 6):
+            gp.team_id = 2
+        
+        if( ins.cur_palyer >= ins.max_player) :
+            res['tyep'] = RspDataType.TEXT
+            res['msg_text'] = 'Team is full'
+            return res
+        else :
+            # update current player
+            ins.cur_palyer = ins.cur_palyer + 1
+            db.session.add(ins)
+            db.session.commit()
+
+            db.session.add(gp)
+            db.session.commit()
+
+            res['type'] = RspDataType.TEXT
+            res['msg_text'] = 'add player successed'
 
     return res
 
@@ -296,6 +367,28 @@ def InstDelPlayer(line_uid, param):
     res = {}
     reset_response(res)
 
+    # check instence
+    ins = Instence.query.filter_by(title=param[1]).first()
+    if( ins is None):
+        res['type'] = RspDataType.TEXT
+        res['msg_text'] = 'No such instance'
+        return res
+
+    gp = Gplayer.query.filter_by(
+            inst_title=param[1], 
+            game_id=param[2]).first()
+    
+    if( gp is not None) :
+        if( gp.line_uid == line_uid or ins.create_user == line_uid):
+            db.session.delete(gp)
+            db.session.commit()
+
+            ins.cur_palyer = ins.cur_palyer - 1
+            db.session.add(ins)
+            db.session.commit()
+
+            res['type'] = RspDataType.TEXT
+            res['msg_text'] = 'delete ' + param[2]
 
     return res
 

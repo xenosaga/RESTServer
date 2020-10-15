@@ -133,7 +133,7 @@ class Instence(db.Model):
     game_type = db.Column(db.String(16))
     date_time = db.Column(db.DateTime)
     max_player = db.Column(db.Integer)
-    cur_palyer = db.Column(db.Integer, default=1)
+    cur_palyer = db.Column(db.Integer, default=0)
     create_user = db.Column(db.String(64))
 
     def __repr__(self):
@@ -173,8 +173,9 @@ class Command(db.Model):
             'guild':        (10, 0),
             'instopen':     (11, 0),
             'instdelete':   (12, 0),
-            'instaddplayer':(13, 0),
-            'instdelplayer':(14, 0)
+            'instquery':    (13, 0),
+            'instaddplayer':(14, 0),
+            'instdelplayer':(15, 0)
         }
 
         for c in cmds:

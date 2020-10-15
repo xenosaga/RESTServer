@@ -2,7 +2,8 @@ from ..models import Role, User, Command
 from .utilty import AddText, AddImg, AddSticker, \
         ModImg, ModSticker, ModText, \
         Query, DeleteImg, Delete, GuildList, \
-        InstOpen, InstDelete, InstAddPlayer, InstDelPlayer
+        InstOpen, InstDelete, InstQuery, \
+        InstAddPlayer, InstDelPlayer
 from .emu import CommandCode
 
 class parser():
@@ -76,4 +77,6 @@ class parser():
             return InstAddPlayer(line_uid, param)
         elif( cmd_code == CommandCode.INST_DELETE_PLAYER):
             return InstDelPlayer(line_uid, param)
+        elif( cmd_code == CommandCode.INST_QUERY):
+            return InstQuery()
         pass
