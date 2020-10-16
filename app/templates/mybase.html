@@ -20,6 +20,7 @@
     <!-- Bootstrap core CSS -->
     <!-- bb——這裡是通過下載網頁上的css檔案，儲存在static目錄下即可-->
     <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/bootstrap-datepicker3.min.css" rel="stylesheet">
     {%- endblock styles %}
 
     {%- endblock head %}
@@ -65,9 +66,15 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/static/js/jquery-3.5.1.min.js"></script>
-    <script src="/static/js/popper.min.js"></script>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-datepicker.min.js"></script>
+    <script src="/static/locales/bootstrap-datepicker.zh-TW.min.js"></script>
+
     {%- endblock scripts %}
+    
+    {% block extrascript %}
+    {%- endblock extrascript %}
 
     {%- endblock body %}
   </body>
