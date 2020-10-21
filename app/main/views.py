@@ -37,3 +37,10 @@ def upload_handle():
     print('-----------------------------------\n')
     # return 'OK'
     return redirect(url_for('main.upload'))
+
+@main.route('/instance_handle', methods=['POST'])
+def instance_handle():
+    print('-----------------------------------\n')
+    print(request.form)
+    print('-----------------------------------\n')
+    return redirect(url_for('main.instance'))
