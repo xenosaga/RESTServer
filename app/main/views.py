@@ -9,18 +9,26 @@ def index():
     return render_template('index.html')
     # return '<h1>Main page</h1>'
 
-@main.route('/test')
+@main.route('/test', methods=['GET', 'POST'])
 def test():
-    return render_template('test.html')
+    data = request.json
+    print(data['name'])
+    print(data['msg'])
+    return 'OK'
+    # return render_template('test.html')
 
 @main.route('/upload', methods=['GET'])
 def upload():
     # return 'OK'
     return render_template('upload.html')
 
-@main.route('/instance', methods=['GET'])
-def instance():
-    return render_template('instance.html')
+@main.route('/instance/open', methods=['GET'])
+def instance_open():
+    return render_template('instance_open.html')
+
+@main.route('/instance/list', methods=['GET'])
+def instance_list():
+    return render_template('instance_list.html')
 
 @main.route('/contact', methods=['GET'])
 def contact():
@@ -28,7 +36,27 @@ def contact():
 
 @main.route('/chat', methods=['GET'])
 def chat():
-    return render_template('chat.html')
+    messages = [
+        {
+            'name':'user1',
+            'message':'message1'
+        },
+        {
+            'name':'user1',
+            'message':'message2'
+
+        },
+        {
+            'name':'user2',
+            'message':'message3'
+        },
+        {
+            'name':'user2',
+            'message':'message3'
+        }
+    ]
+    
+    return render_template('chat.html', msgs=messages)
 
 @main.route('/upload_handle', methods=['POST'])
 def upload_handle():
@@ -43,4 +71,4 @@ def instance_handle():
     print('-----------------------------------\n')
     print(request.form)
     print('-----------------------------------\n')
-    return redirect(url_for('main.instance'))
+    return redirect(url_for('main.instance_open'))

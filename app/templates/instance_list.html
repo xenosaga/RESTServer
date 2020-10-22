@@ -1,0 +1,15 @@
+{% extends "mybase.html" %}
+{% block title %}instance{% endblock %}
+
+{% block content -%}
+<div class="container-sm pt-3">
+    <h1>Instance list</h1>
+
+</div>
+{%- endblock content %}
+
+{% block extrascript %}
+<script type="text/javascript">
+    $(".form_datetime").datetimepicker({format: 'yyyy-mm-dd hh:ii'});
+</script>    
+{%- endblock extrascript %}
