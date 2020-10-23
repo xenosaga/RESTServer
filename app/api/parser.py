@@ -21,7 +21,7 @@ class parser():
         # default 查詢命令
         cmd_code = 0
         premission = 0
-        
+
         # 在命令列表李(非查命令)
         if( row != None):
             cmd_code = row.cmd_code

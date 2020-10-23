@@ -29,12 +29,12 @@ def process(post_data):
     res = {}
 
     # write log
-    h = History(line_uid=post_data['src_uid'], 
+    h = History(line_uid=post_data['src_uid'],
                 src_gid=post_data['src_gid'],
                 src_type=post_data['src_type'],
                 line_msg=post_data['msg_text'])
     db.session.add(h)
-    db.session.commit()    
+    db.session.commit()
 
     # get cmd code privilage
     [cmd_code, param, permission] = p.parse_text(post_data['msg_text'])
@@ -45,8 +45,8 @@ def process(post_data):
 
     # check permission
     qu = User.query.filter_by(line_uid=post_data['src_uid']).first()
-    
-    print('--------------------')  
+
+    print('--------------------')
     if qu is None:
         role = Role.query.filter_by(default=True).first()
         print('permission: ', role.permission)
@@ -65,20 +65,20 @@ def process(post_data):
         return res
 
     # Write data mode(overwrite cmd_code)
-    if( qu.process_lock ):
+    if(qu.process_lock):
         # image
-        if( qu.lock_type == UserLockType.IMG_LOCK):
+        if(qu.lock_type == UserLockType.IMG_LOCK):
             cmd_code = 4
         # text
-        elif( qu.lock_type == UserLockType.TEXT_LOCK):
+        elif(qu.lock_type == UserLockType.TEXT_LOCK):
             param[0] = post_data['msg_id']
             cmd_code = 5
         # sticker
-        elif( qu.lock_type == UserLockType.STICKER_LOCK):
+        elif(qu.lock_type == UserLockType.STICKER_LOCK):
             cmd_code = 6 
 
     # 沒有權限
-    if( not qu.can(permission) ):
+    if (not qu.can(permission)):
         print('no premission')
         reset_response(res)
         pass

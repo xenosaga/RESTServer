@@ -3,6 +3,7 @@ from . import api
 from .. import db
 from .handler import process, process_pb
 from ..models import Command, Role, User, Guild
+from flask_cors import cross_origin
 
 # Line api process
 @api.route('/', methods=['POST'])
@@ -22,10 +23,34 @@ def post_back():
         res = process_pb(req_data)
     pass
 
-@api.route('/hello')
+@api.route('/hello', methods=['POST', 'GET'])
+@cross_origin()
 def hello():
     return jsonify({"Hello": "world"})
-    
+
+@api.route('/message', methods=['POST', 'GET'])
+@cross_origin()
+def get_message():
+    res = [
+        {
+            'user': 'user1',
+            'msg': 'hello'
+        },
+        {
+            'user': 'user2',
+            'msg': 'hi'
+        },
+        {
+            'user': 'user1',
+            'msg': 'I am user1'
+        },
+        {
+            'user': 'user2',
+            'msg': 'Hi user1'
+        },
+    ]
+    return jsonify(res)
+
 @api.route('/init', methods=['GET', 'POST'])
 def init():
     db.drop_all()
