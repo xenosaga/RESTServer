@@ -402,6 +402,21 @@ def PostbackInst(title, datetime):
         
     pass
 
+def UserQuery(line_uid):
+    res = {}
+    reset_response(res)
+
+    # check user
+    u = User.query.filter_by(line_uid=line_uid).first()
+    if( u is None):
+        res['type'] = RspDataType.TEXT
+        res['msg_text'] = 'No such user'
+        return res
+    
+    res['type'] = RspDataType.TEXT
+    res['msg_text'] = "權限 : " + str(u.role_id)
+    return res
+
 def reset_response(res):
     res['type'] = RspDataType.SILENT
     res['msg_text'] = ''

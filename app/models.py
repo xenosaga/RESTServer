@@ -175,7 +175,8 @@ class Command(db.Model):
             'instdelete':   (12, 0),
             'instquery':    (13, 0),
             'instaddplayer':(14, 0),
-            'instdelplayer':(15, 0)
+            'instdelplayer':(15, 0),
+            'ustate':       (200, 0)
         }
 
         for c in cmds:

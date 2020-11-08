@@ -4,6 +4,7 @@ from .utilty import AddText, AddImg, AddSticker, \
         Query, DeleteImg, Delete, GuildList, \
         InstOpen, InstDelete, InstQuery, \
         InstAddPlayer, InstDelPlayer, \
+        UserQuery, \
         PostbackInst
 from .emu import CommandCode
 
@@ -80,6 +81,8 @@ class parser():
             return InstDelPlayer(line_uid, param)
         elif( cmd_code == CommandCode.INST_QUERY):
             return InstQuery()
+        elif( cmd_code == CommandCode.USER_STATE):
+            return UserQuery(line_uid)
         pass
 
     def process_pb(self, data, param):

@@ -28,3 +28,4 @@ class CommandCode:
     INST_QUERY = 13
     INST_ADD_PLAYER = 14
     INST_DELETE_PLAYER = 15
+    USER_STATE = 200
